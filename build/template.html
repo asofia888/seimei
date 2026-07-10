@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>熊崎式 姓名判断 — 旧字体画数・陰陽五行</title>
+<meta name="description" content="旧字体（康熙字典体）の画数と陰陽五行にもとづく熊崎式（五格剖象法）の姓名判断。五格・八十一数理・陰陽配列・三才配置を鑑定し、鑑定書風の命式図を印刷できます。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="熊崎式 姓名判断 — 旧字体画数・陰陽五行">
+<meta property="og:description" content="五格・八十一数理・陰陽配列・三才配置による本格鑑定。文字ごとの画数はその場で手修正できます。">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23a63a2b'/%3E%3Ctext x='32' y='47' font-size='40' text-anchor='middle' fill='%23fdf6ee' font-family='serif' font-weight='700'%3E%E9%91%91%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=Shippori+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --washi:#f4eee0;
+  --paper:#fdfaf2;
+  --ink:#2a2521;
+  --ink2:#6a6154;
+  --shu:#a63a2b;
+  --kin:#96793a;
+  --line:#dccfb2;
+  --line2:#e9e0cb;
+  --dai:#a63a2b;
+  --kichi:#96793a;
+  --han:#7d7259;
+  --kyo:#5a636e;
+  --el-moku:#3f6b4f; --el-ka:#a63a2b; --el-do:#b8862d; --el-kin:#8a8f98; --el-sui:#31465e;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","BIZ UDMincho",serif;
+  background:
+    radial-gradient(1100px 500px at 85% -10%, rgba(150,121,58,.07), transparent 60%),
+    radial-gradient(900px 600px at -10% 100%, rgba(166,58,43,.05), transparent 55%),
+    var(--washi);
+  color:var(--ink);
+  line-height:1.85;
+  padding:26px 14px 70px;
+}
+.frame{max-width:760px;margin:0 auto;}
+
+/* ===== ヘッダー ===== */
+header{
+  position:relative;
+  text-align:center;
+  padding:30px 10px 26px;
+  border-top:3px double var(--kin);
+  border-bottom:3px double var(--kin);
+  margin-bottom:26px;
+}
+.hd-sub{
+  font-size:12px;letter-spacing:.42em;color:var(--kin);
+  margin-bottom:10px;font-weight:600;
+}
+h1{
+  font-family:"Shippori Mincho B1","Shippori Mincho",serif;
+  font-size:clamp(26px,6vw,36px);
+  font-weight:700;letter-spacing:.3em;text-indent:.3em;
+  color:var(--ink);
+}
+.hd-note{font-size:12.5px;color:var(--ink2);letter-spacing:.18em;margin-top:10px;}
+.seal{
+  position:absolute;right:4px;top:-14px;
+  width:46px;height:46px;background:var(--shu);color:#fdf6ee;
+  display:flex;align-items:center;justify-content:center;
+  font-family:"Shippori Mincho B1",serif;font-size:24px;font-weight:700;
+  box-shadow:inset 0 0 0 2px #fdf6ee, inset 0 0 0 4px var(--shu);
+  transform:rotate(3deg);
+}
+
+/* ===== カード共通 ===== */
+.card{
+  background:var(--paper);
+  border:1px solid var(--line);
+  padding:22px 20px;
+  margin-bottom:18px;
+  box-shadow:0 1px 0 rgba(90,70,40,.06), 0 10px 26px -18px rgba(90,70,40,.25);
+}
+.card h2{
+  font-size:15px;font-weight:700;letter-spacing:.3em;color:var(--ink);
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;
+}
+.card h2::before{content:"";width:9px;height:9px;background:var(--shu);flex:none;transform:rotate(45deg);}
+.card h2 small{font-size:11px;color:var(--ink2);letter-spacing:.14em;font-weight:500;margin-left:auto;}
+
+/* ===== 入力 ===== */
+.name-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:480px){.name-grid{grid-template-columns:1fr;}}
+.fld label{display:block;font-size:12px;letter-spacing:.3em;color:var(--ink2);margin-bottom:6px;}
+.fld input{
+  width:100%;font-family:inherit;font-size:22px;letter-spacing:.24em;
+  padding:10px 12px;background:#fffdf7;color:var(--ink);
+  border:1px solid var(--line);border-bottom:2px solid var(--kin);
+  outline:none;
+}
+.fld input:focus{border-bottom-color:var(--shu);box-shadow:0 6px 14px -10px rgba(166,58,43,.4);}
+.charwrap{margin-top:16px;}
+.grouplabel{font-size:11.5px;letter-spacing:.3em;color:var(--ink2);margin:10px 0 6px;}
+.cards{display:flex;flex-wrap:wrap;gap:8px;}
+.ccard{
+  width:86px;border:1px solid var(--line);background:#fffdf7;
+  padding:8px 6px 7px;text-align:center;position:relative;
+}
+.ccard.unknown{border-color:var(--shu);background:#fdf3ef;}
+.ccard .ch{font-family:"Shippori Mincho B1",serif;font-size:30px;line-height:1.25;font-weight:600;}
+.ccard .kyu{font-size:11px;color:var(--kin);letter-spacing:.06em;min-height:16px;}
+.ccard input{
+  width:54px;font-family:inherit;font-size:16px;text-align:center;
+  border:1px solid var(--line);border-bottom:2px solid var(--kin);
+  background:#fff;padding:2px 2px;outline:none;margin-top:3px;
+}
+.ccard input:focus{border-bottom-color:var(--shu);}
+.ccard .basis{font-size:9.5px;color:var(--ink2);line-height:1.5;margin-top:4px;min-height:14px;letter-spacing:0;}
+.ccard .warn{font-size:10px;color:var(--shu);margin-top:4px;}
+.actions{display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap;}
+button.main{
+  font-family:"Shippori Mincho B1",serif;font-size:16px;letter-spacing:.42em;text-indent:.42em;
+  color:#fdf6ee;background:var(--shu);border:1px solid var(--shu);
+  padding:12px 44px;cursor:pointer;transition:opacity .15s, transform .05s;
+}
+button.main:hover{opacity:.92;}
+button.main:active{transform:translateY(1px);}
+button.main:disabled{background:#b9ab90;border-color:#b9ab90;cursor:not-allowed;}
+button.sub{
+  font-family:inherit;font-size:13.5px;letter-spacing:.28em;text-indent:.28em;
+  color:var(--kin);background:transparent;border:1px solid var(--kin);
+  padding:11px 26px;cursor:pointer;
+}
+button.sub:hover{background:rgba(150,121,58,.08);}
+.hint{font-size:12px;color:var(--shu);text-align:center;margin-top:10px;min-height:18px;letter-spacing:.06em;}
+
+/* ===== 命式図 ===== */
+.meishiki{position:relative;margin:6px auto 2px;}
+.ms-cell{position:absolute;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.ms-cell .c{font-family:"Shippori Mincho B1",serif;font-weight:600;line-height:1.1;}
+.ms-cell .s{font-size:11px;color:var(--ink2);letter-spacing:.04em;margin-top:1px;}
+.ms-cell.rei .c{border:1.5px dashed var(--kin);color:var(--kin);font-size:15px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
+.ms-br{position:absolute;border:0 solid #8b7c5f;}
+.ms-br.right{border-top-width:1.5px;border-right-width:1.5px;border-bottom-width:1.5px;}
+.ms-br.left{border-top-width:1.5px;border-left-width:1.5px;border-bottom-width:1.5px;}
+.ms-lab{position:absolute;display:flex;flex-direction:column;align-items:flex-start;gap:1px;line-height:1.3;}
+.ms-lab .t{font-size:10.5px;letter-spacing:.22em;color:var(--ink2);}
+.ms-lab .n{font-family:"Shippori Mincho B1",serif;font-size:21px;font-weight:700;}
+.ms-lab.lft{align-items:flex-end;text-align:right;}
+.ms-foot{text-align:center;font-size:14px;letter-spacing:.14em;margin-top:8px;padding-top:10px;border-top:1px solid var(--line2);}
+.ms-foot b{font-family:"Shippori Mincho B1",serif;font-size:22px;margin:0 4px;}
+
+/* ===== 結果の導入文 ===== */
+.card .lead{font-size:12.5px;color:var(--ink2);line-height:2.0;margin:-4px 0 14px;}
+.card .lead b{color:var(--ink);}
+
+/* ===== 判定チップ ===== */
+.chip{
+  display:inline-block;font-size:11px;font-weight:700;letter-spacing:.2em;text-indent:.2em;
+  padding:2px 8px 2px;color:#fdf6ee;vertical-align:2px;white-space:nowrap;
+}
+.chip.大吉{background:var(--dai);}
+.chip.吉{background:var(--kichi);}
+.chip.半吉{background:transparent;color:var(--han);box-shadow:inset 0 0 0 1px var(--han);}
+.chip.凶{background:var(--kyo);}
+
+/* ===== 五格 ===== */
+.gk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;}
+.gk{border:1px solid var(--line2);background:#fffdf7;padding:14px 15px 12px;}
+.gk .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.gk .kaku{font-size:13px;letter-spacing:.22em;font-weight:700;}
+.gk .role{font-size:10.5px;color:var(--ink2);letter-spacing:.1em;}
+.gk .num{font-family:"Shippori Mincho B1",serif;font-size:30px;font-weight:700;margin-left:auto;line-height:1;}
+.gk .num small{font-size:12px;font-weight:500;color:var(--ink2);letter-spacing:.08em;}
+.gk .calc{font-size:11.5px;color:var(--ink2);margin-top:6px;letter-spacing:.04em;}
+.gk .desc{font-size:12px;color:var(--ink2);line-height:1.8;margin-top:3px;padding-bottom:7px;border-bottom:1px dashed var(--line2);}
+.gk .fname{font-size:13px;color:var(--kin);letter-spacing:.16em;margin-top:7px;font-weight:600;}
+.gk p{font-size:13px;color:var(--ink);margin-top:3px;line-height:1.9;}
+.gk .dts{margin-top:9px;border-top:1px dashed var(--line2);padding-top:8px;}
+.gk .dt{display:flex;gap:9px;align-items:baseline;margin-top:5px;font-size:12.5px;line-height:1.85;}
+.gk .dt .l{flex:none;font-size:10px;color:var(--kin);border:1px solid var(--line);padding:1px 7px;letter-spacing:.2em;text-indent:.2em;white-space:nowrap;}
+.gk p.adv{font-size:12.5px;margin-top:9px;padding:8px 11px;background:rgba(150,121,58,.07);border-left:2px solid var(--kin);line-height:1.9;}
+
+/* ===== 陰陽 ===== */
+.iy-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.iy-pat{font-size:26px;letter-spacing:.34em;font-family:"Shippori Mincho B1",serif;}
+.iy-name{font-size:14px;letter-spacing:.2em;font-weight:700;color:var(--kin);}
+.result-text{font-size:13.5px;line-height:2.0;}
+#ovText p{margin:0 0 12px;}
+#ovText p:last-child{margin-bottom:0;}
+
+/* ===== 三才 ===== */
+.sz-flow{display:flex;align-items:center;justify-content:center;gap:6px;margin:6px 0 16px;flex-wrap:wrap;}
+.sz-el{
+  width:74px;height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:#fdf6ee;gap:0;
+}
+.sz-el .e{font-family:"Shippori Mincho B1",serif;font-size:28px;font-weight:700;line-height:1.15;}
+.sz-el .t{font-size:10px;letter-spacing:.2em;opacity:.92;}
+.sz-arrow{display:flex;flex-direction:column;align-items:center;font-size:11px;color:var(--ink2);letter-spacing:.06em;min-width:52px;}
+.sz-arrow .m{font-size:17px;line-height:1.1;}
+.sz-line{display:flex;gap:10px;align-items:baseline;margin-top:10px;flex-wrap:wrap;}
+.sz-line .lb{font-size:12.5px;letter-spacing:.24em;font-weight:700;white-space:nowrap;}
+.sz-line p{font-size:13px;line-height:1.9;flex:1;min-width:220px;}
+.el-木{background:var(--el-moku);} .el-火{background:var(--el-ka);} .el-土{background:var(--el-do);}
+.el-金{background:var(--el-kin);} .el-水{background:var(--el-sui);}
+
+/* ===== 総評 ===== */
+.ov-band{
+  text-align:center;font-family:"Shippori Mincho B1",serif;
+  font-size:20px;letter-spacing:.34em;text-indent:.34em;font-weight:700;
+  color:var(--shu);margin-bottom:12px;
+}
+.ov-band small{display:block;font-size:10.5px;letter-spacing:.3em;color:var(--ink2);font-weight:500;margin-bottom:4px;}
+
+/* ===== 設定・解説 ===== */
+details{border:1px solid var(--line);background:var(--paper);margin-bottom:14px;}
+summary{
+  cursor:pointer;padding:13px 18px;font-size:13px;letter-spacing:.26em;font-weight:700;
+  color:var(--ink2);list-style:none;display:flex;align-items:center;gap:8px;
+}
+summary::before{content:"＋";color:var(--kin);font-weight:400;}
+details[open] summary::before{content:"−";}
+summary::-webkit-details-marker{display:none;}
+.d-body{padding:2px 20px 18px;font-size:13px;color:var(--ink);}
+.toggle{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line2);}
+.toggle:last-of-type{border-bottom:none;}
+.toggle input{margin-top:6px;accent-color:var(--shu);width:16px;height:16px;flex:none;}
+.toggle .tt{font-weight:700;letter-spacing:.1em;font-size:13.5px;}
+.toggle .td{font-size:12px;color:var(--ink2);line-height:1.8;}
+.d-body ul{padding-left:1.3em;}
+.d-body li{margin:4px 0;font-size:12.5px;color:var(--ink);}
+.d-body .nb{color:var(--ink2);font-size:12px;margin-top:10px;line-height:1.9;}
+
+footer{
+  text-align:center;font-size:11.5px;color:var(--ink2);letter-spacing:.1em;
+  line-height:2.0;margin-top:30px;padding-top:16px;border-top:1px solid var(--line);
+}
+
+#results{display:none;}
+#results.show{display:block;}
+#results.stale{opacity:.45;transition:opacity .2s;}
+
+@media print{
+  body{background:#fff;padding:0;}
+  .no-print, #inputCard, details, .actions, .hint{display:none !important;}
+  .card{box-shadow:none;break-inside:avoid;}
+  header{margin-bottom:14px;}
+}
+</style>
+</head>
+<body>
+<div class="frame">
+
+<header>
+  <div class="seal">鑑</div>
+  <div class="hd-sub">旧字体画数 × 陰陽五行</div>
+  <h1>熊崎式 姓名判断</h1>
+  <div class="hd-note">五格剖象・八十一数理・三才配置による鑑定</div>
+</header>
+
+<div class="card" id="inputCard">
+  <h2>お名前の入力<small>漢字・ひらがな・カタカナ</small></h2>
+  <div class="name-grid">
+    <div class="fld">
+      <label>姓（みょうじ）</label>
+      <input type="text" id="seiIn" placeholder="山田" maxlength="8" autocomplete="off">
+    </div>
+    <div class="fld">
+      <label>名（なまえ）</label>
+      <input type="text" id="meiIn" placeholder="太郎" maxlength="8" autocomplete="off">
+    </div>
+  </div>
+  <div class="charwrap" id="charwrap" style="display:none;">
+    <div class="grouplabel">文字ごとの画数（クリックで手修正できます）</div>
+    <div id="seiCards" class="cards" style="margin-bottom:8px;"></div>
+    <div id="meiCards" class="cards"></div>
+  </div>
+  <div class="actions">
+    <button class="main" id="runBtn" disabled>鑑　定</button>
+  </div>
+  <div class="hint" id="hint"></div>
+</div>
+
+<div id="results">
+  <div class="card">
+    <h2>命式<small>五格の構成</small></h2>
+    <p class="lead">伝統的な鑑定書の形式で、お名前の画数の構成と五格の関係を図にしたものです。各文字の下の ○ は陽（奇数画）、● は陰（偶数画）をあらわします。</p>
+    <div class="meishiki" id="meishiki"></div>
+    <div class="ms-foot" id="msFoot"></div>
+  </div>
+
+  <div class="card">
+    <h2>五格の数理<small>八十一数理による吉凶</small></h2>
+    <p class="lead">姓名の画数を五つの「格」に分け、それぞれの数を八十一数理に照らして吉凶を見ます。とくに重視されるのは、性格と人生の中心期を示す<b>人格</b>と、生涯を貫く<b>総格</b>の二つです。</p>
+    <div class="gk-grid" id="gkGrid"></div>
+  </div>
+
+  <div class="card">
+    <h2>陰陽の配列<small>奇数＝陽○ ／ 偶数＝陰●</small></h2>
+    <p class="lead">文字ごとの画数の奇数・偶数の並びから、気の偏りを見ます。陰と陽がほどよく交じり合うのが良い形とされます。</p>
+    <div class="iy-row">
+      <span class="iy-pat" id="iyPat"></span>
+      <span class="iy-name" id="iyName"></span>
+      <span id="iyChip"></span>
+    </div>
+    <p class="result-text" id="iyText"></p>
+  </div>
+
+  <div class="card">
+    <h2>三才の五行<small>天・人・地の相生相剋</small></h2>
+    <p class="lead">天格・人格・地格の下一桁を五行（木・火・土・金・水）に置き換え、隣り合う気の関係を見ます。生じ合う「相生」は吉、ぶつかり合う「相剋」は注意とされ、上段（成功運）は目上や環境との関係を、下段（基礎運）は足元の安定を示します。</p>
+    <div class="sz-flow" id="szFlow"></div>
+    <div class="sz-line"><span class="lb">成功運</span><p id="szSeiko"></p></div>
+    <div class="sz-line"><span class="lb">基礎運</span><p id="szKiso"></p></div>
+    <div class="sz-line"><span class="lb">配置</span><p id="szTotal"></p></div>
+  </div>
+
+  <div class="card" aria-live="polite">
+    <h2>総評</h2>
+    <div class="ov-band" id="ovBand"><small>総合</small><span id="ovBandT"></span></div>
+    <div class="result-text" id="ovText"></div>
+  </div>
+
+  <div class="actions no-print">
+    <button class="sub" onclick="window.print()">鑑定書を印刷</button>
+  </div>
+</div>
+
+<details>
+  <summary>数え方の設定</summary>
+  <div class="d-body">
+    <label class="toggle">
+      <input type="checkbox" id="optKyu" checked>
+      <span><span class="tt">旧字体（康熙字典体）に直して数える</span><br>
+      <span class="td">沢→澤(17)、広→廣(15)、恵→惠(12) のように、新字体を旧字体に変換した画数で計算します。熊崎式の基本です。</span></span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" id="optBushu" checked>
+      <span><span class="tt">部首は元の文字の画数で数える</span><br>
+      <span class="td">さんずい＝水(4画)、くさかんむり＝艸(6画)、しんにょう＝辵(7画)、りっしんべん＝心(4画)、こざとへん＝阜(8画)、おおざと＝邑(7画)、たまへん＝玉(5画) など。</span></span>
+    </label>
+    <label class="toggle">
+      <input type="checkbox" id="optSuii" checked>
+      <span><span class="tt">漢数字は数の意味（数意）で数える</span><br>
+      <span class="td">四=4画、五=5画、六=6画、十=10画。オフにすると筆画どおり（四=5画、十=2画 など）に数えます。</span></span>
+    </label>
+    <div class="nb">設定を変えると、文字ごとの画数と鑑定結果がその場で計算し直されます。手動で修正した画数はそのまま保たれます。</div>
+  </div>
+</details>
+
+<details>
+  <summary>この鑑定の見方</summary>
+  <div class="d-body">
+    <ul>
+      <li><b>天格</b>（祖運）… 姓の合計。家系・先祖から受け継ぐ運。単独では吉凶を判断しません。</li>
+      <li><b>人格</b>（主運）… 姓の末字＋名の頭字。性格の中核と中年期の運勢を示す、鑑定の要です。</li>
+      <li><b>地格</b>（初年運）… 名の合計。生まれもった資質と若年期の運勢。</li>
+      <li><b>外格</b>（助運）… 総格から人格を除いた数。対人関係・社会との縁を示します。</li>
+      <li><b>総格</b>（総運）… 姓名全画数の合計。生涯、とくに晩年の運勢を示します。</li>
+      <li><b>霊数</b>… 一字姓・一字名の場合、天格・地格・外格の計算にのみ 1 を加えます（総格には加えません）。</li>
+      <li><b>陰陽配列</b>… 各文字の画数の奇偶の並び。片寄りなく交じるのが良い形です。</li>
+      <li><b>三才</b>… 天・人・地格それぞれの下一桁を五行（1,2木／3,4火／5,6土／7,8金／9,0水）に配し、相生・相剋を見ます。</li>
+    </ul>
+    <div class="nb">画数の数え方には流派差があります（例：「之」を3画とするか4画とするか、「成」を6画とするか7画とするか）。本アプリは熊崎式で一般的な康熙字典体・部首元字方式を基準にしていますが、お手持ちの字典と異なる場合は文字カードの数値を直接修正してください。</div>
+  </div>
+</details>
+
+<footer>
+  昭和初期に熊崎健翁が体系化した五格剖象法にもとづく参考鑑定です。<br>
+  数意は歩みを映す鏡であり、運命を縛るものではありません。
+</footer>
+
+</div>
+<script>
+/*__DATA__*/
+/*__CALC__*/
+/*__UI__*/
+</script>
+</body>
+</html>

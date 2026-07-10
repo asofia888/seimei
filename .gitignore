@@ -1,0 +1,7 @@
+# ビルド時にダウンロード・生成されるファイル
+build/kanji.json
+build/ids.txt
+build/data.js
+build/final.html
+__pycache__/
+.DS_Store
