@@ -82,9 +82,10 @@ function updateRunState(){
 
 /* ===== 鑑定 ===== */
 let last=null;
+function currentSex(){const r=document.querySelector('input[name="sexIn"]:checked');return r?r.value:'';}
 function compute(scroll){
   const sei=resolved.sei.map(r=>r.strokes),mei=resolved.mei.map(r=>r.strokes);
-  const g=gokaku(sei,mei);
+  const g=gokaku(sei,mei,currentSex());
   const iy=inyo(sei.concat(mei));
   const sz=sansai(g.ten.num,g.jin.num,g.chi.num);
   const ov=overall(g,iy,sz);
@@ -141,7 +142,7 @@ function renderMeishiki(g){
   h+=br(laneB,seiEnd,meiStart,'right');
   h+=br(LL+4,0,lastI,'left');
   const lab=(x,cy,t,f,lft)=>'<div class="ms-lab'+(lft?' lft':'')+'" style="'+(lft?'right:'+(width-x)+'px;':'left:'+x+'px;')+'top:'+cy+'px;transform:translateY(-50%);">'
-    +'<div class="t">'+t+'</div><div class="n">'+f.disp+' '+(t==='天格'?'':chip(f.rating))+'</div></div>';
+    +'<div class="t">'+t+'</div><div class="n">'+f.disp+'<span class="fn">'+esc(f.name)+'</span>'+(t==='天格'?'':chip(f.rating))+'</div></div>';
   h+=lab(labX,((0+seiEnd+1)/2)*H,'天格',g.ten,false);
   h+=lab(labX,(seiEnd+1)*H,'人格',g.jin,false);
   h+=lab(labX,((meiStart+lastI+1)/2)*H,'地格',g.chi,false);
@@ -164,25 +165,29 @@ const KAKU_ADVICE={
   jin:{
     '大吉':'主運が大吉であることは、この鑑定でもっとも心強い点です。人生の中心期に向かって、持ち前の力が素直に伸びていく形です。',
     '吉':'主運は堅実な吉数です。派手さよりも積み重ねが実を結ぶ形で、中年期に確かな充実を迎えやすいでしょう。',
-    '半吉':'主運には吉と課題が同居しています。数意の示す長所を意識して使うことで、運の振れ幅を良い側へ寄せていけます。',
+    '半吉':'主運は吉に進める半々の数です。数意の示す長所を意識して使うことで、運の振れ幅を良い側へ寄せていけます。',
+    '半凶':'主運はやや凶に近づく半々の数です。数意の示す注意どころを早めに知って備えることで、振れ幅を良い側へ戻していけます。',
     '凶':'主運の凶数は「性格の癖への注意信号」と読むのが伝統的な見方です。示された弱点を知って備えるだけでも流れは変わるとされます。'
   },
   sou:{
     '大吉':'総運が大吉で、人生の後半に向かうほど運が熟していく形です。晩年の安泰を支える、たいへん心強い土台です。',
     '吉':'総運は良好です。歩みを重ねるほど土台が固まり、穏やかな晩年へつながっていく形です。',
-    '半吉':'総運は吉凶が入り交じります。中年までに築く備えと信用が、そのまま晩年の安心につながります。',
+    '半吉':'総運は吉に進める半々の形です。中年までに築く備えと信用が、そのまま晩年の安心につながります。',
+    '半凶':'総運はやや凶に寄る半々の形です。中年までに固める備えと健康への配慮が、晩年の安定をしっかり支えてくれます。',
     '凶':'総格の凶数は、生涯の「気をつけどころ」を示すものです。堅実な選択と健康への配慮を重ねることで、十分に穏やかな流れを築けるとされます。'
   },
   chi:{
     '大吉':'若年期の運がたいへん良く、才能の土台をのびのびと育てられる形です。若いうちに身につけたものが生涯の財産になります。',
     '吉':'初年運は良好です。学びや経験を素直に吸収できる若年期となりやすく、その蓄えが後年の歩みを支えます。',
     '半吉':'初年運はおおむね穏やかですが、ややむらの出やすい形です。若いうちの習慣づくりと基礎固めが、後年に大きく効いてきます。',
+    '半凶':'初年運はやや不安定に傾く形ですが、若いうちの基礎固めと良い習慣づくりが、後年の確かな支えとなります。',
     '凶':'若年期にやや苦労の出やすい形ですが、それは早くから鍛えられることの裏返しでもあります。成人後は人格・総格が運の主役となるため、過度な心配は無用です。'
   },
   gai:{
     '大吉':'対人運・援助運がたいへん強く、良い縁と引き立てに恵まれる形です。人との関わりの中で道が開けていきます。',
     '吉':'対人運は良好です。周囲との縁が追い風となり、困ったときには助け手があらわれやすいでしょう。',
     '半吉':'対人運はまずまずですが、環境や相手によって明暗が分かれやすい形です。良い縁を選んで深める意識が大切です。',
+    '半凶':'対人面ではやや波の出やすい形です。縁を広げるより、信頼できる相手を選んで深めることが何よりの守りになります。',
     '凶':'対人面で気疲れや行き違いの生じやすい形とされます。無理に八方へ合わせるより、信頼できる少数との縁を深めることが開運の近道です。'
   }
 };
@@ -203,7 +208,9 @@ function renderGokaku(g){
   $('gkGrid').innerHTML=order.map(k=>{
     const f=g[k],m=KAKU_META[k];
     const isTen=k==='ten';
-    const adv=isTen?'':(KAKU_ADVICE[k][f.rating]||'');
+    const adv=isTen?'':(f.adjusted
+      ?'この凶は「弱い」のではなく「強すぎる」ことへの戒めです。強さを和らげ、家庭や周囲との調和に心を配ることが開運の鍵とされます。'
+      :(KAKU_ADVICE[k][f.rating]||''));
     const wrap=f.num!==f.disp?'（81数理では'+f.disp+'として鑑定）':'';
     const dts=isTen?'':'<div class="dts">'
       +[['仕事',f.work],['対人',f.social],['心得',f.care]].map(([l,t])=>
@@ -215,7 +222,8 @@ function renderGokaku(g){
       +'<div class="calc">'+esc(kakuCalc(k,g))+'＝'+f.num+wrap+'</div>'
       +'<div class="desc">'+esc(m[2])+'</div>'
       +'<div class="fname">'+esc(f.name)+(isTen?'':'　'+chip(f.rating))+'</div>'
-      +(isTen?'':'<p>'+esc(f.text)+'</p>'+dts+(adv?'<p class="adv">'+esc(adv)+'</p>':''))
+      +(isTen?'':'<p>'+esc(f.text)+'</p>'+dts+(adv?'<p class="adv">'+esc(adv)+'</p>':'')
+        +(f.note?'<p class="note">※'+esc(f.note)+'</p>':''))
       +'</div>';
   }).join('');
 }
@@ -249,6 +257,9 @@ function renderSansai(sz){
   el.addEventListener('keydown',e=>{if(e.key==='Enter'&&!$('runBtn').disabled){e.preventDefault();compute(true);}});
 });
 $('runBtn').addEventListener('click',()=>compute(true));
+document.querySelectorAll('input[name="sexIn"]').forEach(r=>{
+  r.addEventListener('change',()=>{if(hasRun&&canRun())compute(false);});
+});
 [['optKyu','kyu'],['optBushu','bushu'],['optSuii','suii']].forEach(([id,k])=>{
   $(id).checked=OPTS[k];
   $(id).addEventListener('change',e=>{OPTS[k]=e.target.checked;saveOpts();renderCards();if(hasRun&&canRun())compute(false);});

@@ -55,6 +55,19 @@ eq('FORTUNE完全性', complete, 81);
 const fo = C.fortuneOf(15);
 eq('fortuneOf詳細', [!!fo.work, !!fo.social, !!fo.care], [true, true, true]);
 
+// 性別による頭領数・活動数の判定（21・23・33・39・29）
+eq('頭領数:女性', C.fortuneOf(21, 'f').rating, '凶');
+eq('頭領数:男性', C.fortuneOf(21, 'm').rating, '大吉');
+eq('頭領数:未指定', C.fortuneOf(21).rating, '大吉');
+eq('活動数:女性', C.fortuneOf(29, 'f').rating, '凶');
+eq('特殊数以外:女性', C.fortuneOf(24, 'f').rating, '大吉');
+eq('注記:未指定あり', C.fortuneOf(23).note.length > 0, true);
+eq('注記:男性なし', C.fortuneOf(23, 'm').note, '');
+const gf = C.gokaku([10, 11], [10, 4], 'f');   // 人格21
+eq('五格に性別反映', [gf.jin.disp, gf.jin.rating, gf.jin.adjusted], [21, '凶', true]);
+const gm = C.gokaku([10, 11], [10, 4], 'm');
+eq('男性は据え置き', [gm.jin.rating, !!gm.jin.adjusted], ['大吉', false]);
+
 // 陰陽
 eq('二分', C.inyo([7, 21, 4, 14]).name, '二分');
 eq('挟み', C.inyo([3, 8, 8, 3]).name, '挟み');
