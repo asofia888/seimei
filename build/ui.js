@@ -85,13 +85,14 @@ let last=null;
 function currentSex(){const r=document.querySelector('input[name="sexIn"]:checked');return r?r.value:'';}
 function compute(scroll){
   const sei=resolved.sei.map(r=>r.strokes),mei=resolved.mei.map(r=>r.strokes);
-  const g=gokaku(sei,mei,currentSex());
+  const sex=currentSex();
+  const g=gokaku(sei,mei,sex);
   const iy=inyo(sei.concat(mei));
   const sz=sansai(g.ten.num,g.jin.num,g.chi.num);
-  const ov=overall(g,iy,sz);
-  last={g,iy,sz,ov};
+  const ov=overall(g,iy,sz,sex);
+  last={g,iy,sz,ov,sex};
   renderMeishiki(g);
-  renderGokaku(g);
+  renderGokaku(g,sex);
   renderInyo(iy);
   renderSansai(sz);
   $('ovBandT').textContent=ov.band;
@@ -203,11 +204,12 @@ function kakuCalc(k,g){
   else{a=[];if(g.reiSei)a.push(rei);a.push(...sei.slice(0,-1).map(f));a.push(...mei.slice(1).map(f));if(g.reiMei)a.push(rei);}
   return a.join('＋');
 }
-function renderGokaku(g){
+function renderGokaku(g,sex){
   const order=['jin','sou','chi','gai','ten'];
   $('gkGrid').innerHTML=order.map(k=>{
     const f=g[k],m=KAKU_META[k];
     const isTen=k==='ten';
+    const fem=(!isTen&&sex==='f'&&f.fem)?'<p class="fem"><span class="l">女性の運</span>'+esc(f.fem)+'</p>':'';
     const adv=isTen?'':(f.adjusted
       ?'この凶は「弱い」のではなく「強すぎる」ことへの戒めです。強さを和らげ、家庭や周囲との調和に心を配ることが開運の鍵とされます。'
       :(KAKU_ADVICE[k][f.rating]||''));
@@ -222,7 +224,7 @@ function renderGokaku(g){
       +'<div class="calc">'+esc(kakuCalc(k,g))+'＝'+f.num+wrap+'</div>'
       +'<div class="desc">'+esc(m[2])+'</div>'
       +'<div class="fname">'+esc(f.name)+(isTen?'':'　'+chip(f.rating))+'</div>'
-      +(isTen?'':'<p>'+esc(f.text)+'</p>'+dts+(adv?'<p class="adv">'+esc(adv)+'</p>':'')
+      +(isTen?'':'<p>'+esc(f.text)+'</p>'+fem+dts+(adv?'<p class="adv">'+esc(adv)+'</p>':'')
         +(f.note?'<p class="note">※'+esc(f.note)+'</p>':''))
       +'</div>';
   }).join('');

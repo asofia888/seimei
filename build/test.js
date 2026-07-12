@@ -55,6 +55,19 @@ eq('FORTUNE完全性', complete, 81);
 const fo = C.fortuneOf(15);
 eq('fortuneOf詳細', [!!fo.work, !!fo.social, !!fo.care], [true, true, true]);
 
+// 女性運（男女別鑑定）
+let femc = 0;
+for (let i = 1; i <= 81; i++) { const t = C.FEMALE[i]; if (typeof t === 'string' && t.length > 0) femc++; }
+eq('FEMALE完全性', femc, 81);
+eq('fortuneOf女性運', C.fortuneOf(3, 'f').fem.length > 0, true);
+eq('女性運は常に取得可', C.fortuneOf(3).fem.length > 0, true);
+const ovF = C.overall(C.gokaku([7, 21], [4, 14], 'f'), C.inyo([7, 21, 4, 14]), C.sansai(28, 25, 18), 'f');
+eq('総評:女性運引用', ovF.paras.some(p => p.includes('女性の運としては')), true);
+const ovM = C.overall(C.gokaku([7, 21], [4, 14], 'm'), C.inyo([7, 21, 4, 14]), C.sansai(28, 25, 18), 'm');
+eq('総評:男性は本文のみ', ovM.paras.some(p => p.includes('女性の運としては')), false);
+const ovA = C.overall(C.gokaku([10, 11], [10, 4], 'f'), C.inyo([10, 11, 10, 4]), C.sansai(21, 21, 14), 'f');
+eq('総評:頭領数は女性運で説明', ovA.paras.some(p => p.includes('女性には強すぎる運')), true);
+
 // 性別による頭領数・活動数の判定（21・23・33・39・29）
 eq('頭領数:女性', C.fortuneOf(21, 'f').rating, '凶');
 eq('頭領数:男性', C.fortuneOf(21, 'm').rating, '大吉');
