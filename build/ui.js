@@ -215,7 +215,7 @@ function renderGokaku(g,sex){
       :(KAKU_ADVICE[k][f.rating]||''));
     const wrap=f.num!==f.disp?'（81数理では'+f.disp+'として鑑定）':'';
     const dts=isTen?'':'<div class="dts">'
-      +[['仕事',f.work],['対人',f.social],['心得',f.care]].map(([l,t])=>
+      +[['仕事',f.work],['金運',f.money],['対人',f.social],['健康',f.health],['心得',f.care]].map(([l,t])=>
         '<div class="dt"><span class="l">'+l+'</span><span>'+esc(t)+'</span></div>').join('')
       +'</div>';
     return '<div class="gk">'

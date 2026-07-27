@@ -45,15 +45,16 @@ eq('霊数:外', g2.gai.disp, 2); eq('霊数:総', g2.sou.disp, 25);
 // 81数理の循環
 eq('num81(85)', C.num81(85), 5); eq('num81(81)', C.num81(81), 81);
 
-// 数理表の完全性（81数すべてが評価・数理名・解説・仕事・対人・心得の6項目を持つ）
+// 数理表の完全性（81数すべてが評価・数理名・解説・仕事・対人・心得・金運・健康の8項目を持つ）
 let complete = 0;
 for (let i = 1; i <= 81; i++) {
   const f = C.FORTUNE[i];
-  if (f && f.length === 6 && f.every(x => typeof x === 'string' && x.length > 0)) complete++;
+  if (f && f.length === 8 && f.every(x => typeof x === 'string' && x.length > 0)) complete++;
 }
 eq('FORTUNE完全性', complete, 81);
 const fo = C.fortuneOf(15);
-eq('fortuneOf詳細', [!!fo.work, !!fo.social, !!fo.care], [true, true, true]);
+eq('fortuneOf詳細', [!!fo.work, !!fo.social, !!fo.care, !!fo.money, !!fo.health],
+   [true, true, true, true, true]);
 
 // 女性運（男女別鑑定）
 let femc = 0;
