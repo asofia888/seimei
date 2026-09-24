@@ -158,6 +158,9 @@ button.sub:hover{background:rgba(150,121,58,.08);}
 .ms-lab .n{font-family:"Shippori Mincho B1",serif;font-size:21px;font-weight:700;white-space:nowrap;}
 .ms-lab .fn{font-size:10.5px;font-weight:600;color:var(--kin);letter-spacing:.08em;margin:0 4px 0 5px;}
 .ms-lab.lft{align-items:flex-end;text-align:right;}
+.ms-in{position:absolute;left:0;top:0;transform-origin:0 0;}
+.ms-lab.cmp .t .fn{margin:0 0 0 3px;}
+.ms-lab.cmp .n .chip{margin-left:6px;}
 .ms-foot{text-align:center;font-size:14px;letter-spacing:.14em;margin-top:8px;padding-top:10px;border-top:1px solid var(--line2);}
 .ms-foot b{font-family:"Shippori Mincho B1",serif;font-size:22px;margin:0 4px;}
 
@@ -177,7 +180,7 @@ button.sub:hover{background:rgba(150,121,58,.08);}
 .chip.凶{background:var(--kyo);}
 
 /* ===== 五格 ===== */
-.gk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;}
+.gk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:10px;}
 .gk{border:1px solid var(--line2);background:#fffdf7;padding:14px 15px 12px;}
 .gk .top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
 .gk .kaku{font-size:13px;letter-spacing:.22em;font-weight:700;}
@@ -251,6 +254,13 @@ footer{
   text-align:center;font-size:11.5px;color:var(--ink2);letter-spacing:.1em;
   line-height:2.0;margin-top:30px;padding-top:16px;border-top:1px solid var(--line);
 }
+footer .credit{font-size:10px;letter-spacing:.04em;margin-top:6px;}
+footer a{color:inherit;}
+
+/* ===== 鑑定書の宛名（印刷時のみ） ===== */
+.print-head{display:none;}
+.print-head .ph-name{font-family:"Shippori Mincho B1",serif;font-size:22px;font-weight:700;letter-spacing:.3em;}
+.print-head .ph-meta{font-size:11px;color:var(--ink2);letter-spacing:.08em;margin-top:2px;}
 
 #results{display:none;}
 #results.show{display:block;}
@@ -262,6 +272,7 @@ footer{
   .card{box-shadow:none;break-inside:avoid;}
   .gk{break-inside:avoid;}   /* 五格カードは項目が増えたぶん、1枚ずつ改ページを避ける */
   header{margin-bottom:14px;}
+  .print-head{display:block;text-align:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line);}
 }
 </style>
 </head>
@@ -279,11 +290,11 @@ footer{
   <h2>お名前の入力<small>漢字・ひらがな・カタカナ</small></h2>
   <div class="name-grid">
     <div class="fld">
-      <label>姓（みょうじ）</label>
+      <label for="seiIn">姓（みょうじ）</label>
       <input type="text" id="seiIn" placeholder="山田" maxlength="8" autocomplete="off">
     </div>
     <div class="fld">
-      <label>名（なまえ）</label>
+      <label for="meiIn">名（なまえ）</label>
       <input type="text" id="meiIn" placeholder="太郎" maxlength="8" autocomplete="off">
     </div>
   </div>
@@ -308,6 +319,11 @@ footer{
 </div>
 
 <div id="results">
+  <div class="print-head">
+    <div class="ph-name" id="phName"></div>
+    <div class="ph-meta" id="phMeta"></div>
+  </div>
+
   <div class="card">
     <h2>命式<small>五格の構成</small></h2>
     <p class="lead">伝統的な鑑定書の形式で、お名前の画数の構成と五格の関係を図にしたものです。各文字の下の ○ は陽（奇数画）、● は陰（偶数画）をあらわします。</p>
@@ -363,7 +379,7 @@ footer{
     <label class="toggle">
       <input type="checkbox" id="optBushu" checked>
       <span><span class="tt">部首は元の文字の画数で数える</span><br>
-      <span class="td">さんずい＝水(4画)、くさかんむり＝艸(6画)、しんにょう＝辵(7画)、りっしんべん＝心(4画)、こざとへん＝阜(8画)、おおざと＝邑(7画)、たまへん＝玉(5画) など。</span></span>
+      <span class="td">さんずい＝水(4画)、くさかんむり＝艸(6画)、しんにょう＝辵(7画)、りっしんべん＝心(4画)、こざとへん＝阜(8画)、おおざと＝邑(7画)、たまへん＝玉(5画)、にくづき＝肉(6画) など。</span></span>
     </label>
     <label class="toggle">
       <input type="checkbox" id="optSuii" checked>
@@ -394,6 +410,7 @@ footer{
 <footer>
   昭和初期に熊崎健翁が体系化した五格剖象法にもとづく参考鑑定です。<br>
   数意は歩みを映す鏡であり、運命を縛るものではありません。
+  <div class="credit">画数データ：<a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project">KANJIDIC2</a>（© EDRDG, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>）を加工して使用</div>
 </footer>
 
 </div>

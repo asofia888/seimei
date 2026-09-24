@@ -17,9 +17,9 @@ cd build
 curl -L -o kanji.json https://raw.githubusercontent.com/davidluzgouveia/kanji-data/master/kanji.json
 curl -L -o ids.txt   https://raw.githubusercontent.com/cjkvi/cjkvi-ids/master/ids.txt
 
-# 2. 画数辞書を生成（基準値111字との照合テストが自動で走ります）
+# 2. 画数辞書を生成（基準値127字との照合テストが自動で走ります）
 python3 build_data.py
-#   → data.js が生成され、「--- verify: 111/111 OK ---」のような結果が出れば成功
+#   → data.js が生成され、「--- verify: 127/127 OK ---」のような結果が出れば成功
 
 # 3. テンプレートに辞書とロジックを注入して index.html を生成
 python3 build_app.py
@@ -33,7 +33,7 @@ node test.js
 
 | ファイル | 役割 |
 |---|---|
-| `build_data.py` | 画数辞書ビルダー。旧字体変換表（291組）・異体字表・部首補正・強制補正・かな画数表を組み込み、`data.js` を出力 |
+| `build_data.py` | 画数辞書ビルダー。旧字体変換表（297組）・異体字表・部首補正・強制補正・かな画数表を組み込み、`data.js` を出力 |
 | `calc.js` | 鑑定ロジック（八十一数理表・五格・霊数・陰陽配列・三才五行・総評） |
 | `ui.js` | 画面制御（文字カード・命式図の描画・設定トグル・再計算） |
 | `template.html` | デザインテンプレート。`/*__DATA__*/` `/*__CALC__*/` `/*__UI__*/` の位置に注入される |

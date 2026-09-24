@@ -333,7 +333,7 @@ function overall(g, iy, sz, sex){
   const p=r=>RATING_PTS[r]!=null?RATING_PTS[r]:0;
   const femSel=sex==='f';
   const score=p(g.jin.rating)*3+p(g.sou.rating)*3+p(g.chi.rating)*2+p(g.gai.rating)*2+p(sz.rating)*3+p(iy.rating)*1;
-  const max=55;
+  const max=55; // 大吉4点×重み(3+3+2+2+3)＝52 ＋ 陰陽の最高評価「吉」3点×1
   const pct=score/max;
   let band,lead;
   if(pct>=0.82){band='大変良好';lead='五格の数理・三才の配置ともにたいへん恵まれた構成です。お名前の持つ数の力が、人生のそれぞれの段階でよい追い風となってくれるでしょう。';}

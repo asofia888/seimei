@@ -91,13 +91,14 @@ function compute(scroll){
   const sz=sansai(g.ten.num,g.jin.num,g.chi.num);
   const ov=overall(g,iy,sz,sex);
   last={g,iy,sz,ov,sex};
+  $('results').classList.add('show');   // 命式図は実寸を測って収めるため、描画前に表示しておく
+  renderPrintHead(sex);
   renderMeishiki(g);
   renderGokaku(g,sex);
   renderInyo(iy);
   renderSansai(sz);
   $('ovBandT').textContent=ov.band;
   $('ovText').innerHTML=ov.paras.map(t=>'<p>'+esc(t)+'</p>').join('');
-  $('results').classList.add('show');
   $('results').classList.remove('stale');
   hasRun=true;
   if(scroll){
@@ -107,6 +108,17 @@ function compute(scroll){
 }
 
 function chip(r){return '<span class="chip '+r+'">'+r+'</span>';}
+
+/* --- 鑑定書の宛名（印刷時のみ表示） --- */
+function renderPrintHead(sex){
+  const all=resolved.sei.concat(resolved.mei);
+  $('phName').textContent=resolved.sei.map(r=>r.ch).join('')+'　'+resolved.mei.map(r=>r.ch).join('')+'　様';
+  const how=[OPTS.kyu&&'旧字体',OPTS.bushu&&'部首元字',OPTS.suii&&'数意'].filter(Boolean).join('・')||'実画';
+  const man=all.filter(r=>r.manual).map(r=>r.ch+r.strokes+'画').join('・');
+  const date=new Intl.DateTimeFormat('ja-JP-u-ca-japanese',{dateStyle:'long'}).format(new Date());
+  $('phMeta').textContent=['性別 '+({m:'男性',f:'女性'}[sex]||'指定なし'),'鑑定日 '+date,
+    '数え方 '+how+(man?'（手修正 '+man+'）':'')].join('　／　');
+}
 
 /* --- 命式図 --- */
 function renderMeishiki(g){
@@ -122,7 +134,7 @@ function renderMeishiki(g){
   const H=narrow?58:66,CW=narrow?62:76,LL=narrow?74:88;
   const chF=narrow?27:33;
   const CX=LL+22, laneA=CX+CW+6, laneB=laneA+20, labX=laneB+20, pad=6;
-  const width=labX+(narrow?108:128);
+  const width=labX+(narrow?84:128);
   const height=rows.length*H;
   let h='';
   rows.forEach((r,i)=>{
@@ -142,16 +154,35 @@ function renderMeishiki(g){
   h+=br(laneA,meiStart,lastI,'right');
   h+=br(laneB,seiEnd,meiStart,'right');
   h+=br(LL+4,0,lastI,'left');
-  const lab=(x,cy,t,f,lft)=>'<div class="ms-lab'+(lft?' lft':'')+'" style="'+(lft?'right:'+(width-x)+'px;':'left:'+x+'px;')+'top:'+cy+'px;transform:translateY(-50%);">'
-    +'<div class="t">'+t+'</div><div class="n">'+f.disp+'<span class="fn">'+esc(f.name)+'</span>'+(t==='天格'?'':chip(f.rating))+'</div></div>';
+  // 狭い画面では数理名を上の行へ移し、ラベルの横幅を詰める
+  const lab=(x,cy,t,f,lft)=>{
+    const fn='<span class="fn">'+esc(f.name)+'</span>',ck=t==='天格'?'':chip(f.rating);
+    return '<div class="ms-lab'+(lft?' lft':'')+(narrow?' cmp':'')+'" style="'+(lft?'right:'+(width-x)+'px;':'left:'+x+'px;')+'top:'+cy+'px;transform:translateY(-50%);">'
+      +(narrow?'<div class="t">'+t+fn+'</div><div class="n">'+f.disp+ck+'</div>'
+              :'<div class="t">'+t+'</div><div class="n">'+f.disp+fn+ck+'</div>')+'</div>';
+  };
   h+=lab(labX,((0+seiEnd+1)/2)*H,'天格',g.ten,false);
   h+=lab(labX,(seiEnd+1)*H,'人格',g.jin,false);
   h+=lab(labX,((meiStart+lastI+1)/2)*H,'地格',g.chi,false);
   h+=lab(LL-2,(rows.length/2)*H,'外格',g.gai,true);
   const ms=$('meishiki');
-  ms.style.width=width+'px';ms.style.height=height+'px';
-  ms.innerHTML=h;
+  ms.innerHTML='<div class="ms-in" style="width:'+width+'px;height:'+height+'px;">'+h+'</div>';
+  fitMeishiki(ms,width,height);
   $('msFoot').innerHTML='総格 <b>'+g.sou.disp+'</b> '+esc(g.sou.name)+'　'+chip(g.sou.rating);
+}
+
+/* 外格ラベル等のはみ出しまで含めた実寸を測ってカード内に収める（入りきらなければ縮小） */
+function fitMeishiki(ms,width,height){
+  const inner=ms.firstChild,base=inner.getBoundingClientRect().left;
+  let lo=0,hi=width;
+  inner.querySelectorAll('.ms-lab').forEach(el=>{
+    const r=el.getBoundingClientRect();lo=Math.min(lo,r.left-base);hi=Math.max(hi,r.right-base);
+  });
+  const card=ms.parentElement,cs=getComputedStyle(card);
+  const avail=card.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+  const w=hi-lo,k=avail>0?Math.min(1,avail/w):1;
+  inner.style.transform='scale('+k+') translateX('+(-lo)+'px)';
+  ms.style.width=Math.ceil(w*k)+'px';ms.style.height=Math.ceil(height*k)+'px';
 }
 
 /* --- 五格 --- */
@@ -268,3 +299,6 @@ document.querySelectorAll('input[name="sexIn"]').forEach(r=>{
 });
 let rsT=null;
 window.addEventListener('resize',()=>{if(!hasRun||!last)return;clearTimeout(rsT);rsT=setTimeout(()=>renderMeishiki(last.g),200);});
+// Webフォントが届くと字幅が変わるため、命式図を測り直す
+if(document.fonts&&document.fonts.addEventListener)
+  document.fonts.addEventListener('loadingdone',()=>{if(hasRun&&last)renderMeishiki(last.g);});
